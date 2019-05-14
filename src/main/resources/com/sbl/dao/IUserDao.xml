@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--哪个dao的全限定名-->
+ <mapper namespace="com.sbl.dao.IUserDao" >
+    <!--配置查询所有；操作配置-->
+    <!--<select id="findAll" resultType="com.sbl.domain.User">-->
+        <!--select * from user-->
+    <!--</select>-->
+
+    <!--当实体类的属性和数据库不一致的时候，需要配置查询结果的列名和实体类的属性名的对应关系-->
+    <!--resultMap 的id是唯一表示，type代表查询的实体类是哪个类型（我觉着是对相应的实体类）-->
+    <resultMap id="userMap" type="com.sbl.domain.User">
+        <!--主键字段的对应-->
+        <id property="userId" column="id"></id>
+        <!--非主键字段的对应-->
+        <result property="userName" column="username"></result>
+    </resultMap>
+    <!--这里就使用了上面的唯一标识-->
+    <select id="findAll" resultMap="userMap">
+        select * from user
+    </select>
+
+
+
+    <!--配置添加；对应的是User中的属性的值，注意要自动生成get和set方法-->
+    <insert id="saveUser" parameterType="com.sbl.domain.User">
+        <!--配置插入操作后，keyProperty="id"对应的实体类中属性的名称；获取插入数据的id；keyColumn数据库字段名-->
+        <selectKey keyProperty="id" keyColumn="id" resultType="int" order="AFTER">
+            select last_insert_id();
+        </selectKey>
+        <!--values后面的是字段名com.sbl.domain.User这个类的属性-->
+        insert into user (username,address,sex,birthday) values(#{username},#{address},#{sex},#{birthday}) ;
+    </insert>
+
+    <!--相当于实体类查询；配置更新操作;#{userName}是parameterType中类的属性名，-->
+    <!--一定一致 There is no getter for property named 'userNam' in 'class com.sbl.domain.User'-->
+    <update id="updateUser" parameterType="com.sbl.domain.User">
+        update user set username = #{userName},address = #{address} where id = #{userId}
+    </update>
+
+    <!--配置删除操作-->
+    <delete id="delUser" parameterType="INT">
+        delete from user where id = #{id}
+    </delete>
+
+    <!--配置查询一个用户对象-->
+    <select id="findById" parameterType="INT" resultType="com.sbl.domain.User" >
+        <!--只有一个参数，是个占位符就行，都可以，还是写个好认识的吧id-->
+        select *from user where id = #{hkgj}
+    </select>
+
+    <!--配置根据名字模糊查询-->
+    <select id="findByLikeName" parameterType="string" resultType="com.sbl.domain.User" >
+        select *from user where username like #{name}
+
+    </select>
+
+    <!--配置根据名字模糊查询-->
+    <select id="findTotalUser"  resultType="int" >
+        select count(id) from user
+    </select>
+
+
+    <!--根据queryVo的条件查询用户查询 ;将查询中的属性人认为是parameterType对象的 ；-->
+    <select id="findUserByVo" parameterType="com.sbl.domain.QueryVo" resultType="com.sbl.domain.User" >
+        select *from user where username like #{user.username}
+
+    </select>
+
+</mapper>
